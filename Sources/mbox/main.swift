@@ -12,57 +12,10 @@ import Files
 // TODO: gather GMAIL labels (multiple occurences) .. drop "0000" keep others (like "1998")
 // TODO: gather "Received:" (multiple occurences)
 
-let usefulHeaders = ["from:", "date:", "subject:", "to:", "cc:", "bcc:",
-                     "mime-version:", "content-type:", "message-id:", "resent-to:",
-                     "X-Gmail-Labels:", "X-Error:", "X-Sender:", "Received:"]
+print(CommandLine.arguments[0].components(separatedBy: "/").last ?? "")
+print("--------------------------------")
 
-let uselessHeaders = ["X-GM-THRID:", "Delivered-To:", "X-Attachments:",
-                      "Content-Transfer-Encoding:", "In-Reply-To:", "MIME-Version:"]
-
-let messageSeparator = "\r\nFrom "
-
-struct Message {
-    var headDict: [String : String]
-    var bodyText: String
-
-/*┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-  ┃  convert <CR><LF> to <LF> and search for <LF><LF> as the head/body divider                       ┃
-  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛*/
-    init?(_ message: String) {
-        let entireMessage = message.replacingOccurrences(of: "\r\n", with: "\n")
-        guard let headBodyDivision = entireMessage.range(of: "\n\n") else { return nil }
-
-        let tempHeaders = entireMessage[...headBodyDivision.lowerBound]
-            .replacingOccurrences(of: "\t", with: " ")
-            .replacingOccurrences(of: "\n ", with: " ")
-            .components(separatedBy: "\n").filter( { header in header.count > 0 } )
-
-        var tempHeadDict = [String : String]()
-        tempHeaders.forEach( { header in
-            let splitHeader = header.split(separator: " ", maxSplits: 1)
-            if splitHeader.count == 2 {
-                tempHeadDict.updateValue(String(splitHeader[1]), forKey: splitHeader[0].lowercased())
-            }
-        })
-
-        self.headDict = tempHeadDict
-
-        self.bodyText = String(entireMessage[headBodyDivision.lowerBound...])
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    func print(file: File) throws {
-        try file.append("\r\nFrom xxx@xxx Sun Jun 10 23:59:59 +0000 2018\n")    // FIXME: -- copy the date from the original file (some are good)
-        try self.headDict.forEach( { key, value in
-            if usefulHeaders.contains(key) {
-                try file.append(key + " " + value + "\n")
-            }
-        } )
-        try file.append("\n")
-        try file.append(self.bodyText + "\n")
-    }
-
-}
+let options = MboxOptions()
 
 /// an MBOX file contains concatenated RFC822 mail messages.  Each starts with
 /// a line "From " and ends with a newline .. our first job is to split these
@@ -74,12 +27,12 @@ let fM = FileManager.default
 
 print("      start: \(Date())")
 
-let fileNoSndr = try Folder.home.createFileIfNeeded(at: "Desktop/nosend.mbox")
-let fileIsAOCE_M = try Folder.home.createFileIfNeeded(at: "Desktop/isaoce-modified.mbox")
-let fileIsAOCE_O = try Folder.home.createFileIfNeeded(at: "Desktop/isaoce-original.mbox")
-let fileNoRcvr = try Folder.home.createFileIfNeeded(at: "Desktop/norcvr.mbox")
-let fileNormal = try Folder.home.createFileIfNeeded(at: "Desktop/normal.mbox")
-let fileIsRich = try Folder.home.createFileIfNeeded(at: "Desktop/isrich.mbox")
+//let fileNoSndr = try Folder.home.createFileIfNeeded(at: "Desktop/nosend.mbox")
+//let fileIsAOCE_M = try Folder.home.createFileIfNeeded(at: "Desktop/isaoce-modified.mbox")
+//let fileIsAOCE_O = try Folder.home.createFileIfNeeded(at: "Desktop/isaoce-original.mbox")
+//let fileNoRcvr = try Folder.home.createFileIfNeeded(at: "Desktop/norcvr.mbox")
+//let fileNormal = try Folder.home.createFileIfNeeded(at: "Desktop/normal.mbox")
+//let fileIsRich = try Folder.home.createFileIfNeeded(at: "Desktop/isrich.mbox")
 
 let mboxContents = try! Data(contentsOf: URL(fileURLWithPath: "/Users/gavin/Desktop/0000.mbox"),
                              options: .mappedIfSafe)
@@ -102,15 +55,15 @@ print(" mbox split: \(Date()) .. \(messageArray.count) messages")
 
             // TODO: watch for "<extract>"
 
-            if newMessage.bodyText.contains("<x-flowed>") {
-                newMessage.bodyText = newMessage.bodyText
-                    .replacingOccurrences(of: "<x-flowed>", with: "")    // TODO: what does "x-flowed" actually imply?
-                    .replacingOccurrences(of: "</x-flowed>", with: "")
-//                    .replacingOccurrences(of: "<#T##StringProtocol#>", with: "")
-//                    .replacingOccurrences(of: "<#T##StringProtocol#>", with: "")
-                try newMessage.print(file: fileIsRich)
-                continue
-            }
+//            if newMessage.bodyText.contains("<x-flowed>") {
+//                newMessage.bodyText = newMessage.bodyText
+//                    .replacingOccurrences(of: "<x-flowed>", with: "")    // TODO: what does "x-flowed" actually imply?
+//                    .replacingOccurrences(of: "</x-flowed>", with: "")
+////                    .replacingOccurrences(of: "<#T##StringProtocol#>", with: "")
+////                    .replacingOccurrences(of: "<#T##StringProtocol#>", with: "")
+//                try newMessage.print(file: fileIsRich)
+//                continue
+//            }
 
 /*┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
   ┃ the body contains "RFC822 Header" so we can use these AOCE headers to refine what we have ..     ┃
@@ -206,11 +159,11 @@ print(" mbox split: \(Date()) .. \(messageArray.count) messages")
 
                 }
 
-                if modified {
-                    try newMessage.print(file: fileIsAOCE_M)
-                } else {
-                    try newMessage.print(file: fileIsAOCE_O)
-                }
+//                if modified {
+//                    try newMessage.print(file: fileIsAOCE_M)
+//                } else {
+//                    try newMessage.print(file: fileIsAOCE_O)
+//                }
 
             }
 
@@ -220,12 +173,12 @@ print(" mbox split: \(Date()) .. \(messageArray.count) messages")
             else {
                 if newMessage.bodyText.count > 2 {
 
-                    if newMessage.headDict["to:"] == nil {
-                        newMessage.headDict["to:"] = "Gavin Eadie <gavin+norecip@umich.edu"
-                        try newMessage.print(file: fileNoRcvr)
-                    } else {
-                        try newMessage.print(file: fileNormal)
-                    }
+//                    if newMessage.headDict["to:"] == nil {
+//                        newMessage.headDict["to:"] = "Gavin Eadie <gavin+norecip@umich.edu"
+//                        try newMessage.print(file: fileNoRcvr)
+//                    } else {
+//                        try newMessage.print(file: fileNormal)
+//                    }
                 }
             }
         }
