@@ -12,48 +12,43 @@ import Files
 // TODO: gather GMAIL labels (multiple occurences) .. drop "0000" keep others (like "1998")
 // TODO: gather "Received:" (multiple occurences)
 
-print(CommandLine.arguments[0].components(separatedBy: "/").last ?? "")
-print("--------------------------------")
+let homeDirectory = Folder.home
 
 let options = MboxOptions()
 
-/// an MBOX file contains concatenated RFC822 mail messages.  Each starts with
-/// a line "From " and ends with a newline .. our first job is to split these
-/// out so they can be examined individually.
+/// an MBOX file contains concatenated RFC822 mail messages.  Each starts with a line "From " and
+/// ends with a newline .. our first job is to split these out so they can be examined individually.
 
 typealias oneMessage = [String]
 
-let fM = FileManager.default
-
 print("      start: \(Date())")
 
-//let fileNoSndr = try Folder.home.createFileIfNeeded(at: "Desktop/nosend.mbox")
-//let fileIsAOCE_M = try Folder.home.createFileIfNeeded(at: "Desktop/isaoce-modified.mbox")
-//let fileIsAOCE_O = try Folder.home.createFileIfNeeded(at: "Desktop/isaoce-original.mbox")
-//let fileNoRcvr = try Folder.home.createFileIfNeeded(at: "Desktop/norcvr.mbox")
-//let fileNormal = try Folder.home.createFileIfNeeded(at: "Desktop/normal.mbox")
-//let fileIsRich = try Folder.home.createFileIfNeeded(at: "Desktop/isrich.mbox")
+//let fileNoSndr = try homeDirectory.createFileIfNeeded(at: "Desktop/nosend.mbox")
+//let fileIsAOCE_M = try homeDirectory.createFileIfNeeded(at: "Desktop/isaoce-modified.mbox")
+//let fileIsAOCE_O = try homeDirectory.createFileIfNeeded(at: "Desktop/isaoce-original.mbox")
+//let fileNoRcvr = try homeDirectory.createFileIfNeeded(at: "Desktop/norcvr.mbox")
+//let fileIsRich = try homeDirectory.createFileIfNeeded(at: "Desktop/isrich.mbox")
 
-let mboxContents = try! Data(contentsOf: URL(fileURLWithPath: "/Users/gavin/Desktop/0000.mbox"),
-                             options: .mappedIfSafe)
+let fileToRead = try homeDirectory.file(at: "Desktop/0000.mbox")
+let fileNormal = try homeDirectory.createFileIfNeeded(at: "Desktop/normal.mbox")
 
 print("mbox mapped: \(Date())")
 
-if var mboxRecords = String(data: mboxContents, encoding: .utf8) {         // 55 seconds
+do {
+    let mboxRecords = try fileToRead.readAsString(encodedAs: .utf8)
 
-print("mbox String: \(Date())")
+    print("mbox String: \(Date())")
 
-let messageArray = (messageSeparator + mboxRecords).components(separatedBy: messageSeparator)    // ~90 seconds
-    mboxRecords = ""
+    let messageArray = (messageSeparator + mboxRecords).components(separatedBy: messageSeparator)
 
-print(" mbox split: \(Date()) .. \(messageArray.count) messages")
+    print(" mbox split: \(Date()) .. \(messageArray.count) messages in file.")
 
     for message in messageArray {                                           // ~135 seconds
         var modified = false
 
         if var newMessage = Message(message) {
 
-            // TODO: watch for "<extract>"
+// TODO: watch for "<extract>"
 
 //            if newMessage.bodyText.contains("<x-flowed>") {
 //                newMessage.bodyText = newMessage.bodyText
@@ -184,6 +179,6 @@ print(" mbox split: \(Date()) .. \(messageArray.count) messages")
         }
     }
 
-} else {
-    print("no messages in file")
+} catch {
+    print("no messages in file.")
 }

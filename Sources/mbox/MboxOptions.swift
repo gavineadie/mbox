@@ -17,25 +17,19 @@ public class MboxOptions {
                                         usage: "mbox -gl=0000",
                                         overview: "The command is used for parsing mbox (mailbox) files.")
 
-            let keepLable = parser.add(option: "--keep", shortName: "-k",
-                                       kind: String.self,
+            let keepLable = parser.add(option: "--keep", shortName: "-k", kind: String.self,
                                        usage: "keep messages with this Google label",
                                        completion: ShellCompletion.none)
 
-            let dropLable = parser.add(option: "--drop", shortName: "-d",
-                                       kind: String.self,
+            let dropLable = parser.add(option: "--drop", shortName: "-d", kind: String.self,
                                        usage: "drop messages with this Google label",
                                        completion: ShellCompletion.none)
 
-            let message = parser.add(positional: "message",
-                                     kind: String.self,
-                                     optional: true,
+            let message = parser.add(positional: "message", kind: String.self, optional: true,
                                      usage: "This is what the message should say",
                                      completion: ShellCompletion.none)
 
-            let names = parser.add(option: "--names",
-                                   shortName: "-n",
-                                   kind: [String].self,
+            let names = parser.add(option: "--names", shortName: "-n", kind: [String].self,
                                    strategy: .oneByOne,
                                    usage: "Multiple names",
                                    completion: ShellCompletion.none)
