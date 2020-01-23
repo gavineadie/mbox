@@ -8,7 +8,10 @@
 import Foundation
 import TSCUtility
 
-public class MboxOptions {
+public struct MboxOptions {
+    
+    public var inputFile = "Desktop/<<<<.mbox"
+    public var outputFile = "Desktop/>>>>.mbox"
 
     init() {
 
@@ -29,6 +32,10 @@ public class MboxOptions {
                                        usage: "read mbox information from this file",
                                        completion: ShellCompletion.none)
 
+            let mboxOutput = parser.add(option: "--output", shortName: "-o", kind: String.self,
+                                        usage: "write mbox information to this file",
+                                        completion: ShellCompletion.none)
+
             let message = parser.add(positional: "message", kind: String.self, optional: true,
                                      usage: "This is what the message should say",
                                      completion: ShellCompletion.none)
@@ -43,7 +50,15 @@ public class MboxOptions {
             if let googleLabel = arguments.get(keepLable) { print("keep Google label: \(googleLabel)") }
             if let googleLabel = arguments.get(dropLable) { print("drop Google label: \(googleLabel)") }
 
-            if let inputFile = arguments.get(mboxInput) { print("drop Google label: \(inputFile)") }
+            if let inputFile = arguments.get(mboxInput) {
+                print("read mbox file: \(inputFile)")
+                self.inputFile = inputFile
+            }
+
+            if let outputFile = arguments.get(mboxOutput) {
+                print("write mbox file: \(outputFile)")
+                self.outputFile = outputFile
+            }
 
             if let message = arguments.get(message) { print("Using message: \(message)") }
 

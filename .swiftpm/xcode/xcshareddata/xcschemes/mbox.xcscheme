@@ -77,15 +77,11 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "--keep=0000"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--input &quot;~/Desktop/0000.mbox&quot;"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--help"
             isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--input=&quot;Development/mbox/0000.mbox&quot;"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--keep"

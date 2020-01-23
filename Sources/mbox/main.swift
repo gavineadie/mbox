@@ -26,8 +26,10 @@ let fileIsAOCE_O = try homeDirectory.createFileIfNeeded(at: "Desktop/isaoce-orig
 let fileNoRcvr = try homeDirectory.createFileIfNeeded(at: "Desktop/norcvr.mbox")
 let fileIsRich = try homeDirectory.createFileIfNeeded(at: "Desktop/isrich.mbox")
 
-let fileToRead = try homeDirectory.file(at: "Desktop/0000.mbox")
-let fileNormal = try homeDirectory.createFileIfNeeded(at: "Desktop/normal.mbox")
+/// in our test "0000" file, there two duplicates: Message-IDs: v04011700b1eba6a321a7 and v04020401b22c63b055e6
+
+let fileToRead = try homeDirectory.file(at: options.inputFile)
+let fileNormal = try homeDirectory.createFileIfNeeded(at: options.outputFile)
 
 print("mbox mapped: \(Date())")
 
@@ -46,7 +48,7 @@ do {
     for var message in messageArray {                                           // ~135 seconds
         var modified = false
 
-        message.cleanupHeaders()            // "UTF-8", "..."
+        message.cleanupHeaders()            // "UTF-8", ...
 
 // TODO: watch for "<extract>"
 

@@ -93,13 +93,12 @@ struct Message {
 
         if var gLabel = headDict["x-gmail-labels:"] {
             if gLabel.contains("=?UTF-8") {
-//              print("UTF-8 GLabel: " + gLabel)
 
                 gLabel = gLabel.replacingOccurrences(of: "=?UTF-8?Q?", with: "UTF8,")
                 gLabel = gLabel.replacingOccurrences(of: "=E2=80=A2", with: "•")
                 gLabel = gLabel.replacingOccurrences(of: "?=", with: "")
 
-                headDict.updateValue(gLabel, forKey: "UTF-8 GLabel: ")
+                headDict.updateValue(gLabel, forKey: "x-gmail-labels:")
             }
         }
 
