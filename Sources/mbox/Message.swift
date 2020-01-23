@@ -1,6 +1,6 @@
 //
 //  Message.swift
-//  
+//
 //
 //  Created by Gavin Eadie on 1/20/20.
 //
@@ -8,12 +8,13 @@
 import Foundation
 import Files
 
-let usefulHeaders = ["from:", "date:", "subject:", "to:", "cc:", "bcc:",
-                     "mime-version:", "content-type:", "message-id:", "resent-to:",
-                     "X-Gmail-Labels:", "X-Error:", "X-Sender:", "Received:"]
+let usefulHeaders = ["from:", "date:", "subject:", "to:", "cc:", "bcc:", "mime-version:",
+                     "content-type:", "message-id:", "resent-to:", "x-error:", "x-sender:"]
 
-let uselessHeaders = ["X-GM-THRID:", "Delivered-To:", "X-Attachments:",
-                      "Content-Transfer-Encoding:", "In-Reply-To:", "MIME-Version:"]
+let specialHeaders = ["x-gmail-labels:", "received:"]
+
+let uselessHeaders = ["x-gm-thrid:", "delivered-to:", "x-attachments:",
+                      "content-transfer-encoding:", "in-reply-to:", "mime-version:"]
 
 let messageSeparator = "\r\nFrom "
 
@@ -30,14 +31,37 @@ struct Message {
 
         let tempHeaders = entireMessage[...headBodyDivision.lowerBound]
             .replacingOccurrences(of: "\t", with: " ")
-            .replacingOccurrences(of: "\n ", with: " ")
+            .replacingOccurrences(of: "\n ", with: "")
             .components(separatedBy: "\n").filter( { header in header.count > 0 } )
 
         var tempHeadDict = [String : String]()
         tempHeaders.forEach( { header in
             let splitHeader = header.split(separator: " ", maxSplits: 1)
             if splitHeader.count == 2 {
-                tempHeadDict.updateValue(String(splitHeader[1]), forKey: splitHeader[0].lowercased())
+                let headerKey = String(splitHeader[0].lowercased())
+                let headerText = String(splitHeader[1])
+
+                // treat some headers that are duplicated specially:
+                //      "delivered-to:",                        <-- treat normally
+                //      "message-id:",                          <-- treat normally
+                //      "x-gm-thrid:"                           <-- treat normally
+
+                //      "x-gmail-labels:",                      <-- accumulate values with commas
+                //      "received:"                             <-- accumulate values with space
+
+                if "x-gmail-labels:".contains(headerKey) {
+                    if let previousText = tempHeadDict.updateValue(headerText, forKey: headerKey) {
+                        tempHeadDict.updateValue(previousText + "," + headerText, forKey: headerKey)
+                    }
+                } else if "received:".contains(headerKey) {
+                    if let previousText = tempHeadDict.updateValue(headerText, forKey: headerKey) {
+                        tempHeadDict.updateValue(previousText + " " + headerText, forKey: headerKey)
+                    }
+                } else {
+                    tempHeadDict.updateValue(headerText, forKey: headerKey)
+                }
+            } else {
+                // possible key-only header: "Bcc:", "Cc:", "X-Attachments:"    <-- delete these
             }
         })
 
@@ -47,10 +71,12 @@ struct Message {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    func print(file: File) throws {
-        try file.append("\r\nFrom xxx@xxx Sun Jun 10 23:59:59 +0000 2018\n")    // FIXME: -- copy the date from the original file (some are good)
+// FIXME: -- copy the date from the original file (some are good)
+
+    func emit(file: File) throws {
+        try file.append("\r\nFrom xxx@xxx Sun Jun 10 23:59:59 +0000 2018\n")
         try self.headDict.forEach( { key, value in
-            if usefulHeaders.contains(key) {
+            if usefulHeaders.contains(key) || specialHeaders.contains(key) {
                 try file.append(key + " " + value + "\n")
             }
         } )
@@ -58,4 +84,24 @@ struct Message {
         try file.append(self.bodyText + "\n")
     }
 
+// TODO: gather GMAIL labels (multiple occurences) .. drop "0000" keep others (like "1998")
+// TODO: gather "Received:" (multiple occurences)
+
+    mutating func cleanupHeaders() {
+
+        // indentify and convert utf-8 symbols
+
+        if var gLabel = headDict["x-gmail-labels:"] {
+            if gLabel.contains("=?UTF-8") {
+//              print("UTF-8 GLabel: " + gLabel)
+
+                gLabel = gLabel.replacingOccurrences(of: "=?UTF-8?Q?", with: "UTF8,")
+                gLabel = gLabel.replacingOccurrences(of: "=E2=80=A2", with: "•")
+                gLabel = gLabel.replacingOccurrences(of: "?=", with: "")
+
+                headDict.updateValue(gLabel, forKey: "UTF-8 GLabel: ")
+            }
+        }
+
+    }
 }

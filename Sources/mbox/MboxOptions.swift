@@ -14,7 +14,7 @@ public class MboxOptions {
 
         do {
             let parser = ArgumentParser(commandName: "mbox",
-                                        usage: "mbox -gl=0000",
+                                        usage: "mbox [-keep=0000] [-drop=0000]",
                                         overview: "The command is used for parsing mbox (mailbox) files.")
 
             let keepLable = parser.add(option: "--keep", shortName: "-k", kind: String.self,
@@ -23,6 +23,10 @@ public class MboxOptions {
 
             let dropLable = parser.add(option: "--drop", shortName: "-d", kind: String.self,
                                        usage: "drop messages with this Google label",
+                                       completion: ShellCompletion.none)
+
+            let mboxInput = parser.add(option: "--input", shortName: "-i", kind: String.self,
+                                       usage: "read mbox information from this file",
                                        completion: ShellCompletion.none)
 
             let message = parser.add(positional: "message", kind: String.self, optional: true,
@@ -38,6 +42,8 @@ public class MboxOptions {
 
             if let googleLabel = arguments.get(keepLable) { print("keep Google label: \(googleLabel)") }
             if let googleLabel = arguments.get(dropLable) { print("drop Google label: \(googleLabel)") }
+
+            if let inputFile = arguments.get(mboxInput) { print("drop Google label: \(inputFile)") }
 
             if let message = arguments.get(message) { print("Using message: \(message)") }
 
