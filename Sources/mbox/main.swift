@@ -20,11 +20,11 @@ typealias oneMessage = [String]
 
 print("      start: \(Date())")
 
-let fileNoSndr = try homeDirectory.createFileIfNeeded(at: "Desktop/nosend.mbox")
-let fileIsAOCE_M = try homeDirectory.createFileIfNeeded(at: "Desktop/isaoce-modified.mbox")
-let fileIsAOCE_O = try homeDirectory.createFileIfNeeded(at: "Desktop/isaoce-original.mbox")
-let fileNoRcvr = try homeDirectory.createFileIfNeeded(at: "Desktop/norcvr.mbox")
-let fileIsRich = try homeDirectory.createFileIfNeeded(at: "Desktop/isrich.mbox")
+let fileNoSndr = try homeDirectory.createFileIfNeeded(at: "Desktop/MBOX/nosend.mbox")
+let fileIsAOCE_M = try homeDirectory.createFileIfNeeded(at: "Desktop/MBOX/isaoce-modified.mbox")
+let fileIsAOCE_O = try homeDirectory.createFileIfNeeded(at: "Desktop/MBOX/isaoce-original.mbox")
+let fileNoRcvr = try homeDirectory.createFileIfNeeded(at: "Desktop/MBOX/norcvr.mbox")
+let fileIsRich = try homeDirectory.createFileIfNeeded(at: "Desktop/MBOX/isrich.mbox")
 
 /// in our test "0000" file, there two duplicates: Message-IDs: v04011700b1eba6a321a7 and v04020401b22c63b055e6
 

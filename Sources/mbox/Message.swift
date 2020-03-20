@@ -61,7 +61,9 @@ struct Message {
                     tempHeadDict.updateValue(headerText, forKey: headerKey)
                 }
             } else {
+
                 // possible key-only header: "Bcc:", "Cc:", "X-Attachments:"    <-- delete these
+
             }
         })
 
@@ -74,7 +76,7 @@ struct Message {
 // FIXME: -- copy the date from the original file (some are good)
 
     func emit(file: File) throws {
-        try file.append("\r\nFrom xxx@xxx Sun Jun 10 23:59:59 +0000 2018\n")
+        try file.append("\r\nFrom xxx@xxx Thu Dec 31 23:59:59 +0000 2020\n")
         try self.headDict.forEach( { key, value in
             if usefulHeaders.contains(key) || specialHeaders.contains(key) {
                 try file.append(key + " " + value + "\n")
@@ -89,7 +91,7 @@ struct Message {
 
     mutating func cleanupHeaders() {
 
-        // indentify and convert utf-8 symbols
+        // identify and convert utf-8 symbols
 
         if var gLabel = headDict["x-gmail-labels:"] {
             if gLabel.contains("=?UTF-8") {
@@ -102,5 +104,15 @@ struct Message {
             }
         }
 
+        // lowercase "From:" addresses inside <   >
+
+        if var fromAddress = headDict["from:"] {
+
+            fromAddress = fromAddress.replacingOccurrences(of: "Gavin@UMich.EDU",
+                                                           with: "gavin@umich.edu",
+                                                           options: .caseInsensitive)
+            headDict.updateValue(fromAddress, forKey: "from:")
+
+        }
     }
 }

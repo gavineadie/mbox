@@ -77,15 +77,15 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "--keep=0000"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--input=&quot;Development/mbox/0000.mbox&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--keep"
+            argument = "--input=&quot;Desktop/\(TAKEOUT\)/Takeout/Mail/Inbox.mbox&quot;"
             isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--input &quot;Desktop/\(TAKEOUT\)/Takeout/Mail/0000.mbox&quot;"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--drop=ABCD"

@@ -10,8 +10,8 @@ import TSCUtility
 
 public struct MboxOptions {
     
-    public var inputFile = "Desktop/<<<<.mbox"
-    public var outputFile = "Desktop/>>>>.mbox"
+    public var inputFile = "Desktop/MBOX/<<<<.mbox"
+    public var outputFile = "Desktop/MBOX/>>>>.mbox"
 
     init() {
 
@@ -36,15 +36,6 @@ public struct MboxOptions {
                                         usage: "write mbox information to this file",
                                         completion: ShellCompletion.none)
 
-            let message = parser.add(positional: "message", kind: String.self, optional: true,
-                                     usage: "This is what the message should say",
-                                     completion: ShellCompletion.none)
-
-            let names = parser.add(option: "--names", shortName: "-n", kind: [String].self,
-                                   strategy: .oneByOne,
-                                   usage: "Multiple names",
-                                   completion: ShellCompletion.none)
-
             let arguments = try parser.parse(Array(CommandLine.arguments.dropFirst()))
 
             if let googleLabel = arguments.get(keepLable) { print("keep Google label: \(googleLabel)") }
@@ -60,17 +51,18 @@ public struct MboxOptions {
                 self.outputFile = outputFile
             }
 
-            if let message = arguments.get(message) { print("Using message: \(message)") }
-
-            if let multipleNames = arguments.get(names) { print("Using names: \(multipleNames)") }
-
         } catch ArgumentParserError.expectedValue(let value) {
-            print("Missing value for argument \(value).")
-        } catch ArgumentParserError.expectedArguments(let parser, let stringArray) {
-            print("Parser: \(parser) Missing arguments: \(stringArray.joined()).")
-        } catch {
-            print(error.localizedDescription)
-        }
 
+            print("Missing value for argument \(value).")
+
+        } catch ArgumentParserError.expectedArguments(let parser, let stringArray) {
+
+            print("Parser: \(parser) Missing arguments: \(stringArray.joined()).")
+
+        } catch {
+
+            print(error.localizedDescription)
+
+        }
     }
 }
