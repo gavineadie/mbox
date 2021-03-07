@@ -50,11 +50,11 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--input=&quot;Desktop/\(TAKEOUT\)/Takeout/Mail/Inbox.mbox&quot;"
-            isEnabled = "NO">
+            argument = "--base=&quot;/Volumes/T7-GAV/Takeout3/&quot;"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--input &quot;Desktop/\(TAKEOUT\)/Takeout/Mail/0000.mbox&quot;"
+            argument = "--input=&quot;Takeout3/2000 and older.mbox&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

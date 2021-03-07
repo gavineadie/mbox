@@ -9,52 +9,58 @@
 import Foundation
 import Files
 
-let homeDirectory = Folder.home
-
 let options = MboxOptions()
+
+guard let baseDirectory = try? Folder(path: options.baseDirectory) else {
+    print("No base!")
+    exit(EXIT_FAILURE)
+}
 
 /// an MBOX file contains concatenated RFC822 mail messages.  Each starts with a line "From " and
 /// ends with a newline .. our first job is to split these out so they can be examined individually.
 
 typealias oneMessage = [String]
 
-print("      start: \(Date())")
+print("            start: \(Date())")
 
-let fileNoSndr = try homeDirectory.createFileIfNeeded(at: "Desktop/MBOX/nosend.mbox")
-let fileIsAOCE_M = try homeDirectory.createFileIfNeeded(at: "Desktop/MBOX/isaoce-modified.mbox")
-let fileIsAOCE_O = try homeDirectory.createFileIfNeeded(at: "Desktop/MBOX/isaoce-original.mbox")
-let fileNoRcvr = try homeDirectory.createFileIfNeeded(at: "Desktop/MBOX/norcvr.mbox")
-let fileIsRich = try homeDirectory.createFileIfNeeded(at: "Desktop/MBOX/isrich.mbox")
+let fileNoSndr = try baseDirectory.createFileIfNeeded(at: "MBOX/nosend.mbox")
+let fileAOCE_M = try baseDirectory.createFileIfNeeded(at: "MBOX/isaoce-modified.mbox")
+let fileAOCE_O = try baseDirectory.createFileIfNeeded(at: "MBOX/isaoce-original.mbox")
+let fileNoRcvr = try baseDirectory.createFileIfNeeded(at: "MBOX/norcvr.mbox")
+let fileIsRich = try baseDirectory.createFileIfNeeded(at: "MBOX/isrich.mbox")
 
 /// in our test "0000" file, there two duplicates: Message-IDs: v04011700b1eba6a321a7 and v04020401b22c63b055e6
 
-let fileToRead = try homeDirectory.file(at: options.inputFile)
-let fileNormal = try homeDirectory.createFileIfNeeded(at: options.outputFile)
+let fileToRead = try baseDirectory.file(at: options.inputFile)
 
-print("mbox mapped: \(Date())")
+let fileNormal = try baseDirectory.createFileIfNeeded(at: options.outputFile)
+
+print("      mbox mapped: \(Date())")
 
 do {
     let mboxRecords = try fileToRead.readAsString(encodedAs: .utf8)
 
-    print("mbox String: \(Date())")
+    print("      mbox String: \(Date())")
 
     let messages = ("\r\n" + mboxRecords).components(separatedBy: messageSeparator)
     let messageArray = messages.compactMap { message in
         Message(message)
     }
 
-    print(" mbox split: \(Date()) .. \(messageArray.count) messages in file.")
-
-    for var message in messageArray {                                           // ~135 seconds
+    print("       mbox split: \(Date()) .. \(messageArray.count) messages in file.")
+ 
+    for var message in messageArray {                                   // ~135 seconds
         var modified = false
 
-        message.cleanupHeaders()            // "UTF-8", ...
+        print(message.headDict["x-gmail-labels:"]!)
+        
+        message.cleanupHeaders()                                        // "UTF-8", ...
 
 // TODO: watch for "<extract>"
 
         if message.bodyText.contains("<x-flowed>") {
             message.bodyText = message.bodyText
-                .replacingOccurrences(of: "<x-flowed>", with: "")   // TODO: what is "x-flowed"?
+                .replacingOccurrences(of: "<x-flowed>", with: "")       // TODO: what is "x-flowed"?
                 .replacingOccurrences(of: "</x-flowed>", with: "")
                 .replacingOccurrences(of: "", with: "")
                 .replacingOccurrences(of: "", with: "")
@@ -157,9 +163,9 @@ do {
             }
 
             if modified {
-                try message.emit(file: fileIsAOCE_M)
+                try message.emit(file: fileAOCE_M)
             } else {
-                try message.emit(file: fileIsAOCE_O)
+                try message.emit(file: fileAOCE_O)
             }
 
         } else {
