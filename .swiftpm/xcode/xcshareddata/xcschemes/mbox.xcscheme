@@ -51,11 +51,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--base=&quot;/Volumes/T7-GAV/Takeout3/&quot;"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--input=&quot;Takeout3/2000 and older.mbox&quot;"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--drop=ABCD"
